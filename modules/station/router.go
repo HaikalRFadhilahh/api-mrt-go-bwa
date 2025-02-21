@@ -18,6 +18,10 @@ func Initiate(router *gin.RouterGroup) {
 	station.GET("/", func(c *gin.Context) {
 		GetAllStation(c, stationService)
 	})
+
+	station.GET("/:id", func(c *gin.Context) {
+		CheckShedulesByStation(c, stationService)
+	})
 }
 
 func GetAllStation(ctx *gin.Context, service Service) {
@@ -36,6 +40,30 @@ func GetAllStation(ctx *gin.Context, service Service) {
 	ctx.JSON(http.StatusOK, response.APIResponse{
 		Success: true,
 		Message: "Data MRT Train",
+		Data:    datas,
+	})
+}
+
+func CheckShedulesByStation(ctx *gin.Context, service Service) {
+	// Take ID From URL
+	id := ctx.Param("id")
+
+	// Execute Service Function
+	datas, err := service.CheckSheduleByStation(id)
+	if err != nil {
+		// Handle Error
+		ctx.JSON(http.StatusInternalServerError, response.APIResponse{
+			Success: false,
+			Message: err.Error(),
+			Data:    nil,
+		})
+		return
+	}
+
+	// Return Response HTTP
+	ctx.JSON(http.StatusOK, response.APIResponse{
+		Success: true,
+		Message: "Data Schedule By Station",
 		Data:    datas,
 	})
 }
